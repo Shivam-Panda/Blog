@@ -1,10 +1,7 @@
+import 'package:app/create.dart';
 import 'package:app/home.dart';
 import 'package:app/posts.dart';
 import 'package:flutter/material.dart';
-
-// import 'posts.dart';
-// import 'home.dart';
-import 'create.dart';
 
 void main() {
   runApp(MyApp());
