@@ -99,12 +99,7 @@ class _PostState extends State<Post> {
   String com_author, com_body = '';
 
   List comments;
-  List<Widget> commentComponents = [
-    Text(
-      'Comments',
-      style: TextStyle(fontWeight: FontWeight.bold),
-    )
-  ];
+  List<Widget> commentComponents = [];
 
   bool loading = true;
 
@@ -134,7 +129,7 @@ class _PostState extends State<Post> {
                 {
                   setState(() {
                     List<dynamic> c = jsonDecode(value.body)['comments'];
-                    List comps = [];
+                    List<Widget> comps = [];
                     if (c.length != 0) {
                       for (int i = 0; i < c.length; i++) {
                         comps.add(Comment(c[i]));
@@ -152,14 +147,20 @@ class _PostState extends State<Post> {
     DateTime _now = DateTime.now();
     String timestamp =
         '${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}';
-    String url = 'https://blog-flask-api-python.herokuapp.com/makeComment/';
-    String j = json.encode({
-      "author": com_author,
-      "body": com_body,
-      "time": timestamp,
-      "postId": '${this.id}'
-    });
-    dynamic s = http.post(Uri.parse(url), body: j);
+    String url = 'https://blog-flask-api-python.herokuapp.com/makeComment';
+
+    dynamic s = http.post(
+        'https://blog-flask-api-python.herokuapp.com/makeComment',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'PostmanRuntime/7.29.0'
+        },
+        body: json.encode({
+          "author": com_author,
+          "body": com_body,
+          "time": timestamp,
+          "postId": '${this.id}'
+        }));
     s.then((v) => {debugPrint(v.body.toString())});
     fetchComments();
   }
@@ -206,7 +207,10 @@ class _PostState extends State<Post> {
           child: Text('${this.body}'),
         ),
         Column(
-          children: this.commentComponents,
+          children: [
+            Center(child: Text('Comments')),
+            ...this.commentComponents
+          ],
         ),
         Column(
           children: [
