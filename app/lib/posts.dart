@@ -96,6 +96,8 @@ class _PostState extends State<Post> {
   int id, likes;
   String body, author, title, timestamp;
 
+  String com_author, com_body = '';
+
   List comments;
   List<Widget> commentComponents = [
     Text(
@@ -132,16 +134,34 @@ class _PostState extends State<Post> {
                 {
                   setState(() {
                     List<dynamic> c = jsonDecode(value.body)['comments'];
+                    List comps = [];
                     if (c.length != 0) {
                       for (int i = 0; i < c.length; i++) {
-                        this.commentComponents.add(Comment(c[i]));
+                        comps.add(Comment(c[i]));
                       }
+                      this.commentComponents = comps;
                     }
                     this.loading = false;
                   })
                 }
             }
         });
+  }
+
+  void makeComment() {
+    DateTime _now = DateTime.now();
+    String timestamp =
+        '${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}';
+    String url = 'https://blog-flask-api-python.herokuapp.com/makeComment/';
+    String j = json.encode({
+      "author": com_author,
+      "body": com_body,
+      "time": timestamp,
+      "postId": '${this.id}'
+    });
+    dynamic s = http.post(Uri.parse(url), body: j);
+    s.then((v) => {debugPrint(v.body.toString())});
+    fetchComments();
   }
 
   _PostState(List post) {
@@ -187,6 +207,25 @@ class _PostState extends State<Post> {
         ),
         Column(
           children: this.commentComponents,
+        ),
+        Column(
+          children: [
+            TextField(
+              decoration: InputDecoration(labelText: 'Author'),
+              onSubmitted: (String s) {
+                com_author = s;
+              },
+            ),
+            TextField(
+                decoration: InputDecoration(labelText: 'Body'),
+                onSubmitted: (String value) {
+                  com_body = value;
+                }),
+            TextButton(
+              onPressed: this.makeComment,
+              child: Text('Submit'),
+            )
+          ],
         )
       ]),
       width: MediaQuery.of(c).size.width,
